@@ -4,6 +4,14 @@
 
 Scaffold a new NPM package.
 
+## Highlights
+
+- 🏖  **Easy to use:** Just run the command.
+- 💫  **Customizable:** Create a Typescript-only package or a TypeScript + React one.
+- 🛠 **Compatible:** Uses **tsup** to generate **esm** and **commonjs** bundles.
+- 🚧 **Ready for tests:** Uses **vitest** (with **@testing-library/react** in the **TypeScript + React** option) for testing.
+- 🚀 **CI/CD:** Includes a workflow for GitHub Actions.
+
 ## Usage
 
 With NPM:
