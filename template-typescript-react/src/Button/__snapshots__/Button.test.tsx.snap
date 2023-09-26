@@ -1,0 +1,20 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Button > should render a primary button 1`] = `
+<button
+  class="_button_544a72"
+  type="button"
+>
+  Primary
+</button>
+`;
+
+exports[`Button > should render a secondary button 1`] = `
+<button
+  class="_button_544a72"
+  style="background-color: #ad7bff; color: #000;"
+  type="button"
+>
+  Secondary
+</button>
+`;
