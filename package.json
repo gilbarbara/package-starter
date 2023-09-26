@@ -11,11 +11,15 @@
   },
   "homepage": "https://github.com/gilbarbara/package-starter#readme",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "type": "module",
   "bin": {
     "package-starter": "index.js"
   },
+  "files": [
+    "index.js",
+    "template-*",
+    "dist"
+  ],
   "sideEffects": false,
   "license": "MIT",
   "keywords": [
@@ -27,26 +31,34 @@
     "@gilbarbara/eslint-config": "^0.5.4",
     "@gilbarbara/prettier-config": "^1.0.0",
     "@gilbarbara/tsconfig": "^0.2.3",
+    "@types/fs-extra": "^11.0.2",
     "@types/minimist": "^1.2.2",
     "@types/node": "^20.6.5",
     "@types/prompts": "^2.4.5",
     "del-cli": "^5.1.0",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.1.1",
     "husky": "^8.0.3",
+    "is-ci-cli": "^2.2.0",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",
     "prompts": "^2.4.2",
     "repo-tools": "^0.2.2",
     "ts-node": "^10.9.1",
     "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.5"
   },
   "scripts": {
     "build": "npm run clean && tsup",
     "watch": "tsup --watch",
     "clean": "del dist/*",
     "lint": "eslint src",
+    "test": "is-ci \"test:run\" \"test:watch\"",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run lint && npm run typecheck && npm run build",
+    "validate": "npm run lint && npm run typecheck && npm run build && npm run test:run",
     "prepare": "husky install",
     "prepublishOnly": "npm run validate"
   },
@@ -59,7 +71,18 @@
     ],
     "rules": {
       "no-console": "off"
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          "./template-typescript/**/*.ts?(x)",
+          "./template-typescript-react/**/*.ts?(x)"
+        ],
+        "rules": {
+          "import/no-unresolved": "off"
+        }
+      }
+    ]
   },
   "prettier": "@gilbarbara/prettier-config",
   "tsup": {
