@@ -9,25 +9,25 @@ Scaffold a new NPM package.
 With NPM:
 
 ```bash
-$ npx @gilbarbara/package-starter
+npx @gilbarbara/package-starter
 ```
 
 With Yarn:
 
 ```bash
-$ yarn dlx @gilbarbara/package-starter
+yarn dlx @gilbarbara/package-starter
 ```
 
 With PNPM:
 
 ```bash
-$ pnpx @gilbarbara/package-starter
+pnpx @gilbarbara/package-starter
 ```
 
 With Bun:
 
 ```bash
-$ bunx @gilbarbara/package-starter
+bunx @gilbarbara/package-starter
 ```
 
 
