@@ -1,0 +1,79 @@
+{
+  "name": "@gilbarbara/package-starter",
+  "version": "0.0.0",
+  "author": "Gil Barbara <gilbarbara@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gilbarbara/package-starter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gilbarbara/package-starter/issues"
+  },
+  "homepage": "https://github.com/gilbarbara/package-starter#readme",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "type": "module",
+  "bin": {
+    "package-starter": "index.js"
+  },
+  "sideEffects": false,
+  "license": "MIT",
+  "keywords": [
+    "package",
+    "template",
+    "starter"
+  ],
+  "devDependencies": {
+    "@gilbarbara/eslint-config": "^0.5.4",
+    "@gilbarbara/prettier-config": "^1.0.0",
+    "@gilbarbara/tsconfig": "^0.2.3",
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^20.6.5",
+    "@types/prompts": "^2.4.5",
+    "del-cli": "^5.1.0",
+    "husky": "^8.0.3",
+    "kolorist": "^1.8.0",
+    "minimist": "^1.2.8",
+    "prompts": "^2.4.2",
+    "repo-tools": "^0.2.2",
+    "ts-node": "^10.9.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "npm run clean && tsup",
+    "watch": "tsup --watch",
+    "clean": "del dist/*",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run lint && npm run typecheck && npm run build",
+    "prepare": "husky install",
+    "prepublishOnly": "npm run validate"
+  },
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@gilbarbara/eslint-config"
+    ],
+    "rules": {
+      "no-console": "off"
+    }
+  },
+  "prettier": "@gilbarbara/prettier-config",
+  "tsup": {
+    "dts": true,
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm"
+    ],
+    "sourcemap": true,
+    "splitting": false,
+    "banner": {
+      "js": "const require = (await import('node:module')).createRequire(import.meta.url);const __filename = (await import('node:url')).fileURLToPath(import.meta.url);const __dirname = (await import('node:path')).dirname(__filename);"
+    }
+  }
+}

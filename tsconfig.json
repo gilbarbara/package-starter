@@ -1,0 +1,10 @@
+{
+  "extends": "@gilbarbara/tsconfig",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "target": "ESNext"
+  },
+  "include": ["src/**/*"]
+}
