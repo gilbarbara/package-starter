@@ -17,6 +17,7 @@
   "sideEffects": false,
   "license": "MIT",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.15.0",
     "@gilbarbara/eslint-config": "^0.7.4",
     "@gilbarbara/prettier-config": "^1.0.0",
     "@gilbarbara/tsconfig": "^0.2.3",
@@ -43,9 +44,10 @@
     "test:watch": "vitest watch",
     "lint": "eslint src",
     "typecheck": "tsc",
+    "typevalidation": "attw -P",
     "format": "prettier \"**/*.{css,graphql,js,json,jsx,less,md,mdx,scss,ts,tsx,yaml,yml}\" --write",
     "size": "size-limit",
-    "validate": "npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run size",
+    "validate": "npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run size && npm run typevalidation",
     "prepare": "husky",
     "prepublishOnly": "npm run validate"
   },
