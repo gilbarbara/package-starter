@@ -3,12 +3,14 @@
   "compilerOptions": {
     "baseUrl": ".",
     "downlevelIteration": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "paths": {
       "~/*": ["src/*"]
     },
     "types": ["vitest/globals"],
-    "target": "ES2022"
+    "target": "ESNext"
   },
-  "include": ["src/**/*"]
+  "include": ["globals.d.ts", "src/**/*"]
 }
