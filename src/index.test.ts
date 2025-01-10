@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-import type { ExecaSyncReturnValue, SyncOptions } from 'execa';
+import type { SyncOptions, SyncResult } from 'execa';
 import { execaCommandSync } from 'execa';
 import fs from 'fs-extra';
 
@@ -10,7 +10,7 @@ const CLI_PATH = join(__dirname, '..');
 const TEMP_PATH = join(__dirname, '..', '.temp');
 const GEN_PATH = join(TEMP_PATH, packageName);
 
-const run = (arguments_: string[], options: SyncOptions = {}): ExecaSyncReturnValue => {
+const run = (arguments_: string[], options: SyncOptions = {}): SyncResult => {
   return execaCommandSync(`node ${CLI_PATH} ${arguments_.join(' ')}`, options);
 };
 
@@ -36,34 +36,34 @@ describe('CLI', () => {
   beforeAll(() => fs.remove(GEN_PATH));
   afterEach(() => fs.remove(GEN_PATH));
 
-  test('prompts for the package name if none supplied', () => {
+  it('prompts for the package name if none supplied', () => {
     const { stdout } = run([]);
 
     expect(stdout).toContain('Package name:');
   });
 
-  test('prompts for the options if none supplied when target dir is current directory', () => {
+  it('prompts for the options if none supplied when target dir is current directory', () => {
     fs.mkdirpSync(GEN_PATH);
     const { stdout } = run(['.'], { cwd: GEN_PATH });
 
     expect(stdout).toContain('Select an option:');
   });
 
-  test('asks to overwrite non-empty target directory', () => {
+  it('asks to overwrite non-empty target directory', () => {
     createNonEmptyDirectory();
     const { stdout } = run([packageName], { cwd: TEMP_PATH });
 
     expect(stdout).toContain(`Target directory "${packageName}" is not empty.`);
   });
 
-  test('asks to overwrite non-empty current directory', () => {
+  it('asks to overwrite non-empty current directory', () => {
     createNonEmptyDirectory();
     const { stdout } = run(['.'], { cwd: GEN_PATH });
 
     expect(stdout).toContain(`Current directory is not empty.`);
   });
 
-  test('works with the -t alias', () => {
+  it('works with the -t alias', () => {
     const { stdout } = run([packageName, '-t', 'typescript'], {
       cwd: TEMP_PATH,
     });
