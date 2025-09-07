@@ -1,4 +1,4 @@
-# Typescript starter
+# {{PACKAGE_NAME}}
 
 ## Usage
 

@@ -42,6 +42,45 @@ const renameFiles: Record<string, string | undefined> = {
 
 const defaultTargetDirectory = 'my-package';
 
+function copy(src: string, destination: string) {
+  const stat = fs.statSync(src);
+
+  if (stat.isDirectory()) {
+    copyDirectory(src, destination);
+  } else {
+    fs.copyFileSync(src, destination);
+  }
+}
+
+function copyDirectory(srcDirectory: string, destinationDirectory: string) {
+  fs.mkdirSync(destinationDirectory, { recursive: true });
+
+  for (const file of fs.readdirSync(srcDirectory)) {
+    const srcFile = path.resolve(srcDirectory, file);
+    const destinationFile = path.resolve(destinationDirectory, file);
+
+    copy(srcFile, destinationFile);
+  }
+}
+
+function emptyDirectory(directory: string) {
+  if (!fs.existsSync(directory)) {
+    return;
+  }
+
+  for (const file of fs.readdirSync(directory)) {
+    if (file === '.git') {
+      continue;
+    }
+
+    fs.rmSync(path.resolve(directory, file), { recursive: true, force: true });
+  }
+}
+
+function formatTargetDirectory(targetDirectory: string | undefined) {
+  return targetDirectory?.trim().replace(/\/+$/g, '');
+}
+
 async function init() {
   const argumentTargetDirectory = formatTargetDirectory(argv._[0]);
   const argumentTemplate = argv.template ?? argv.t;
@@ -159,7 +198,7 @@ async function init() {
 
   const files = fs.readdirSync(templateDirectory);
 
-  for (const file of files.filter(f => f !== 'package.json')) {
+  for (const file of files.filter(f => f !== 'package.json' && f !== 'README.md')) {
     write(file);
   }
 
@@ -170,6 +209,15 @@ async function init() {
   packageJSON.name = packageName || getPackageName();
 
   write('package.json', `${JSON.stringify(packageJSON, null, 2)}\n`);
+
+  // Process README.md with package name replacement
+  const readmeContent = fs.readFileSync(path.join(templateDirectory, 'README.md'), 'utf-8');
+  const processedReadme = readmeContent.replace(
+    /{{PACKAGE_NAME}}/g,
+    packageName || getPackageName(),
+  );
+
+  write('README.md', processedReadme);
 
   const cdPackageName = path.relative(cwd, root);
 
@@ -188,62 +236,14 @@ async function init() {
   console.log();
 }
 
-function formatTargetDirectory(targetDirectory: string | undefined) {
-  return targetDirectory?.trim().replace(/\/+$/g, '');
-}
-
-function copy(src: string, destination: string) {
-  const stat = fs.statSync(src);
-
-  if (stat.isDirectory()) {
-    copyDirectory(src, destination);
-  } else {
-    fs.copyFileSync(src, destination);
-  }
-}
-
-function isValidPackageName(name: string) {
-  return /^(?:@[\d*a-z~-][\d*._a-z~-]*\/)?[\da-z~-][\d._a-z~-]*$/.test(name);
-}
-
-function toValidPackageName(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/^[._]/, '')
-    .replace(/[^\da-z~-]+/g, '-');
-}
-
-function copyDirectory(srcDirectory: string, destinationDirectory: string) {
-  fs.mkdirSync(destinationDirectory, { recursive: true });
-
-  for (const file of fs.readdirSync(srcDirectory)) {
-    const srcFile = path.resolve(srcDirectory, file);
-    const destinationFile = path.resolve(destinationDirectory, file);
-
-    copy(srcFile, destinationFile);
-  }
-}
-
 function isEmpty(directory: string) {
   const files = fs.readdirSync(directory);
 
   return files.length === 0 || (files.length === 1 && files[0] === '.git');
 }
 
-function emptyDirectory(directory: string) {
-  if (!fs.existsSync(directory)) {
-    return;
-  }
-
-  for (const file of fs.readdirSync(directory)) {
-    if (file === '.git') {
-      continue;
-    }
-
-    fs.rmSync(path.resolve(directory, file), { recursive: true, force: true });
-  }
+function isValidPackageName(name: string) {
+  return /^(?:@[\d*a-z~-][\d*._a-z~-]*\/)?[\da-z~-][\d._a-z~-]*$/.test(name);
 }
 
 function packageFromUserAgent(userAgent: string | undefined) {
@@ -258,6 +258,15 @@ function packageFromUserAgent(userAgent: string | undefined) {
     name: packageSpecArray[0],
     version: packageSpecArray[1],
   };
+}
+
+function toValidPackageName(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/^[._]/, '')
+    .replace(/[^\da-z~-]+/g, '-');
 }
 
 // eslint-disable-next-line unicorn/prefer-top-level-await

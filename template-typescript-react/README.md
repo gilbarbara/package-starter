@@ -1,4 +1,4 @@
-# Typescript + React starter
+# {{PACKAGE_NAME}}
 
 ## Usage
 
