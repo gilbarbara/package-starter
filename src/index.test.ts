@@ -73,4 +73,56 @@ describe('CLI', () => {
     expect(stdout).toContain(`Scaffolding package in ${GEN_PATH}`);
     expect(templateFiles).toEqual(generatedFiles);
   });
+
+  it('replaces package name in README.md title for typescript template', () => {
+    run([packageName, '--template', 'typescript'], {
+      cwd: TEMP_PATH,
+    });
+
+    const readmeContent = fs.readFileSync(join(GEN_PATH, 'README.md'), 'utf-8');
+
+    expect(readmeContent).toContain(`# ${packageName}`);
+    expect(readmeContent).not.toContain('{{PACKAGE_NAME}}');
+  });
+
+  it('replaces package name in README.md title for typescript-react template', () => {
+    run([packageName, '--template', 'typescript-react'], {
+      cwd: TEMP_PATH,
+    });
+
+    const readmeContent = fs.readFileSync(join(GEN_PATH, 'README.md'), 'utf-8');
+
+    expect(readmeContent).toContain(`# ${packageName}`);
+    expect(readmeContent).not.toContain('{{PACKAGE_NAME}}');
+  });
+
+  it('updates package.json with correct name', () => {
+    run([packageName, '--template', 'typescript'], {
+      cwd: TEMP_PATH,
+    });
+
+    const packageJsonContent = fs.readFileSync(join(GEN_PATH, 'package.json'), 'utf-8');
+    const packageJson = JSON.parse(packageJsonContent);
+
+    expect(packageJson.name).toBe(packageName);
+  });
+
+  it('works with custom package names containing special characters', () => {
+    const customPackageName = '@my-org/awesome-package';
+    const customGenPath = join(TEMP_PATH, '@my-org', 'awesome-package');
+
+    run([customPackageName, '--template', 'typescript'], {
+      cwd: TEMP_PATH,
+    });
+
+    const readmeContent = fs.readFileSync(join(customGenPath, 'README.md'), 'utf-8');
+    const packageJsonContent = fs.readFileSync(join(customGenPath, 'package.json'), 'utf-8');
+    const packageJson = JSON.parse(packageJsonContent);
+
+    expect(readmeContent).toContain(`# ${customPackageName}`);
+    expect(packageJson.name).toBe(customPackageName);
+
+    // Clean up - remove the entire @my-org directory
+    fs.removeSync(join(TEMP_PATH, '@my-org'));
+  });
 });
