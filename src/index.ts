@@ -1,11 +1,18 @@
-/* eslint-disable no-continue */
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { blue, green, red, reset } from 'kolorist';
 import minimist from 'minimist';
 import prompts from 'prompts';
+
+import {
+  formatTargetDirectory,
+  isEmpty,
+  isValidPackageName,
+  packageFromUserAgent,
+  toValidPackageName,
+} from './helpers.js';
+import { scaffold, type ScaffoldOptions } from './scaffold.js';
 
 // Avoids auto-conversion to number of the package name by defining that the args non-associated with an option ( _ ) needs to be parsed as a string. See #4606
 const argv = minimist<{
@@ -36,50 +43,7 @@ const OPTIONS: Array<Option> = [
 
 const TEMPLATES = OPTIONS.reduce<Array<string>>((acc, option) => [...acc, option.path], []);
 
-const renameFiles: Record<string, string | undefined> = {
-  _gitignore: '.gitignore',
-};
-
 const defaultTargetDirectory = 'my-package';
-
-function copy(src: string, destination: string) {
-  const stat = fs.statSync(src);
-
-  if (stat.isDirectory()) {
-    copyDirectory(src, destination);
-  } else {
-    fs.copyFileSync(src, destination);
-  }
-}
-
-function copyDirectory(srcDirectory: string, destinationDirectory: string) {
-  fs.mkdirSync(destinationDirectory, { recursive: true });
-
-  for (const file of fs.readdirSync(srcDirectory)) {
-    const srcFile = path.resolve(srcDirectory, file);
-    const destinationFile = path.resolve(destinationDirectory, file);
-
-    copy(srcFile, destinationFile);
-  }
-}
-
-function emptyDirectory(directory: string) {
-  if (!fs.existsSync(directory)) {
-    return;
-  }
-
-  for (const file of fs.readdirSync(directory)) {
-    if (file === '.git') {
-      continue;
-    }
-
-    fs.rmSync(path.resolve(directory, file), { recursive: true, force: true });
-  }
-}
-
-function formatTargetDirectory(targetDirectory: string | undefined) {
-  return targetDirectory?.trim().replace(/\/+$/g, '');
-}
 
 async function init() {
   const argumentTargetDirectory = formatTargetDirectory(argv._[0]);
@@ -165,59 +129,19 @@ async function init() {
   const { option, overwrite, packageName } = result;
 
   const root = path.join(cwd, targetDirectory);
-
-  if (overwrite) {
-    emptyDirectory(root);
-  } else if (!fs.existsSync(root)) {
-    fs.mkdirSync(root, { recursive: true });
-  }
-
-  // determine template
-  const template: string = option?.path || argumentTemplate;
+  const template: ScaffoldOptions['template'] = option?.path || argumentTemplate;
 
   const packageInfo = packageFromUserAgent(process.env.npm_config_user_agent);
   const packageManager = packageInfo?.name ?? 'npm';
 
   console.log(`\nScaffolding package in ${root}...`);
 
-  const templateDirectory = path.resolve(
-    fileURLToPath(import.meta.url),
-    '../..',
-    `template-${template}`,
-  );
-
-  const write = (file: string, content?: string) => {
-    const targetPath = path.join(root, renameFiles[file] ?? file);
-
-    if (content) {
-      fs.writeFileSync(targetPath, content);
-    } else {
-      copy(path.join(templateDirectory, file), targetPath);
-    }
-  };
-
-  const files = fs.readdirSync(templateDirectory);
-
-  for (const file of files.filter(f => f !== 'package.json' && f !== 'README.md')) {
-    write(file);
-  }
-
-  const packageJSON = JSON.parse(
-    fs.readFileSync(path.join(templateDirectory, `package.json`), 'utf-8'),
-  );
-
-  packageJSON.name = packageName || getPackageName();
-
-  write('package.json', `${JSON.stringify(packageJSON, null, 2)}\n`);
-
-  // Process README.md with package name replacement
-  const readmeContent = fs.readFileSync(path.join(templateDirectory, 'README.md'), 'utf-8');
-  const processedReadme = readmeContent.replace(
-    /{{PACKAGE_NAME}}/g,
-    packageName || getPackageName(),
-  );
-
-  write('README.md', processedReadme);
+  scaffold({
+    root,
+    template,
+    packageName: packageName || getPackageName(),
+    overwrite,
+  });
 
   const cdPackageName = path.relative(cwd, root);
 
@@ -236,40 +160,6 @@ async function init() {
   console.log();
 }
 
-function isEmpty(directory: string) {
-  const files = fs.readdirSync(directory);
-
-  return files.length === 0 || (files.length === 1 && files[0] === '.git');
-}
-
-function isValidPackageName(name: string) {
-  return /^(?:@[\d*a-z~-][\d*._a-z~-]*\/)?[\da-z~-][\d._a-z~-]*$/.test(name);
-}
-
-function packageFromUserAgent(userAgent: string | undefined) {
-  if (!userAgent) {
-    return undefined;
-  }
-
-  const packageSpec = userAgent.split(' ')[0];
-  const packageSpecArray = packageSpec.split('/');
-
-  return {
-    name: packageSpecArray[0],
-    version: packageSpecArray[1],
-  };
-}
-
-function toValidPackageName(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/^[._]/, '')
-    .replace(/[^\da-z~-]+/g, '-');
-}
-
-// eslint-disable-next-line unicorn/prefer-top-level-await
 init().catch(error => {
   console.error(error);
 });
