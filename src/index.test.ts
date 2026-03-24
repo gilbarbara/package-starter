@@ -25,10 +25,11 @@ const createNonEmptyDirectory = () => {
   fs.writeFileSync(packageJson, '{ "foo": "bar" }');
 };
 
-// Vue 3 starter template
-const templateFiles = fs
-  .readdirSync(join(CLI_PATH, 'template-typescript'))
-  // _gitignore is renamed to .gitignore
+const templateFiles = [
+  ...fs.readdirSync(join(CLI_PATH, 'template-base')),
+  ...fs.readdirSync(join(CLI_PATH, 'template-typescript')),
+]
+  .filter((file, index, self) => self.indexOf(file) === index)
   .map(filePath => (filePath === '_gitignore' ? '.gitignore' : filePath))
   .sort();
 
