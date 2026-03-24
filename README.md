@@ -1,6 +1,6 @@
 # @gilbarbara/package-starter
 
-[![npm version](https://badge.fury.io/js/%40gilbarbara%2Fpackage-starter.svg)](https://badge.fury.io/js/%40gilbarbara%2Fpackage-starter) [![CI](https://github.com/gilbarbara/package-starter/actions/workflows/main.yml/badge.svg)](https://github.com/gilbarbara/package-starter/actions/workflows/main.yml)
+[![npm version](https://badge.fury.io/js/%40gilbarbara%2Fpackage-starter.svg)](https://badge.fury.io/js/%40gilbarbara%2Fpackage-starter) [![CI](https://github.com/gilbarbara/package-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/gilbarbara/package-starter/actions/workflows/ci.yml)
 
 Scaffold a new NPM package.
 
